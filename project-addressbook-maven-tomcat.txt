@@ -1,0 +1,33 @@
+Revision of project deployment using maven and tomcat 
+
+
+1) create a ubuntu machine 
+
+2) sudo su 
+   apt update -y
+   apt install maven -y
+   mvn --version
+   git clone https://github.com/akshu20791/addressbook-cicd-project
+   cd addressbook-cicd-project
+   (check https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) 
+   mvn compile
+   mvn package 
+   (if you read the last part of the logs you will see that the war file is created in /home/ubuntu/addressbook-cicd-project/target) 
+   
+3) Now we need to deploy this war file in the tomcat server
+   wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.zip
+   apt install unzip
+   unzip apache-tomcat-9.0.89.zip
+   ls
+   cd apache-tomcat-9.0.89
+   cd bin
+   chmod +x *.sh
+   ./startup.sh
+   
+4) now we need to move the war file which we created in step1 to webapps directory of tomcat 
+   mv /home/ubuntu/addressbook-cicd-project/target/addressbook.war /home/ubuntu/apache-tomcat-8.5.100/webapps
+   
+5) Now go to aws console -> select your ec2 machine -> click on security tab->click on security id -> edit inbound rule-> add tcp (port 8080) -> traffic source from 0.0.0.0/0
+
+now copy the public ip 
+http://publicip:8080/addressbook

@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+    stages {
+        stage("checkout code from github") {
+            steps {
+                echo "git checkout starting"
+                git url: "https://github.com/akshu20791/addressbook-cicd-project/"
+                echo "git checkout done"
+            }
+        }
+        stage("compile the project") {
+            steps {
+                echo "compiling started"
+                sh "mvn compile"
+            }
+        }
+        stage("running the test cases") {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage("quality-assurance of priject-pmd") {
+            steps {
+                sh "mvn pmd:pmd"
+                recordIssues sourceCodeRetention: 'LAST_BUILD', tools: [pmdParser()]
+                echo 'qa done'
+            }
+        }
+        stage("quality assurance of project - checkstyle optional") {
+            steps {
+                sh "mvn checkstyle:checkstyle"
+                recordIssues sourceCodeRetention: 'LAST_BUILD', tools: [checkStyle()]
+            }
+        }
+        stage("package the project in war format") {
+            steps {
+                sh "mvn package"
+            }
+        }
+        stage("deploy the project") {
+            steps {
+                sh "sudo cp /var/lib/jenkins/workspace/mymultibranchpipeline_master/target/addressbook.war /home/ubuntu/apache-tomcat-9.0.104/webapps"
+            }
+        }
+    }
+
+    post {
+        success {
+            emailext(
+                subject: 'SUCCESS: Job \'${JOB_NAME} [${BUILD_NUMBER}]\'',
+                body: "Good news!\n\nThe Jenkins job '${JOB_NAME} [${BUILD_NUMBER}]' was successful.\nCheck it here: ${BUILD_URL}",
+                to: 'akshu20791@gmail.com'
+            )
+        }
+        failure {
+            emailext(
+                subject: 'FAILURE: Job \'${JOB_NAME} [${BUILD_NUMBER}]\'',
+                body: "Oops!\n\nThe Jenkins job '${JOB_NAME} [${BUILD_NUMBER}]' has failed.\nCheck it here: ${BUILD_URL}",
+                to: 'akshu20791@gmail.com'
+            )
+        }
+    }
+}

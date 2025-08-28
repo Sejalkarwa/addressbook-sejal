@@ -1,0 +1,33 @@
+- hosts: appserver
+  become: true
+  tasks:
+    - name: Ensure required packages are installed
+      apt:
+        name: unzip
+        state: present
+        update_cache: yes
+
+    - name: Download Tomcat 9
+      get_url:
+        url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz
+        dest: /tmp/tomcat.tar.gz
+
+    - name: Extract Tomcat
+      unarchive:
+        src: /tmp/tomcat.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Rename Tomcat folder
+      command: mv /opt/apache-tomcat-9.0.89 /opt/tomcat9
+      args:
+        removes: /opt/tomcat9
+
+    - name: Make Tomcat scripts executable
+      file:
+        path: /opt/tomcat9/bin
+        mode: "0755"
+        recurse: yes
+
+    - name: Start Tomcat
+      shell: nohup /opt/tomcat9/bin/startup.sh &

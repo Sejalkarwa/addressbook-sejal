@@ -1,0 +1,22 @@
+pipeline 
+{ agent any 
+environment { app_node_ip = "13.42.41.241" 
+} 
+stages { 
+    stage('checkout') {
+         steps {
+             git branch: 'main', url: 'https://github.com/Sejalkarwa/addressbook-sejal.git'
+              } } 
+              stage('build with maven') 
+              { 
+                steps {
+                     sh 'mvn clean package'
+                      } 
+                      }
+                       stage('deploy with ansible') {
+                         steps { sh ''' ansible-playbook -i ansible/inventory.ini ansible/tomcat.yml '''
+                          } 
+                         }
+                          
+                          }
+                           }

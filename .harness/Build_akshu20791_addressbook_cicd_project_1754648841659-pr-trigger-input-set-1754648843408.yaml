@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_akshu20791_addressbook_cicd_project_1754648841659-pr-trigger-input-set
+  identifier: Build_akshu20791_addressbook_cicd_project_1754648841659prtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_akshu20791_addressbook_cicd_project_1754648841659
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>

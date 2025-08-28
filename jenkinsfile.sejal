@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_SERVER_IP = "13.42.4.15"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Sejalkarwa/addressbook-sejal.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Install Tomcat via Ansible') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'ansible/tomcat-setup.yml',
+                    inventory: 'ansible/inventory'
+                )
+            }
+        }
+
+        stage('Deploy WAR to Tomcat') {
+            steps {
+                sh '''
+                scp -i /var/lib/jenkins/Sejal_newkey.pem target/*.war ubuntu@${APP_SERVER_IP}:/opt/tomcat9/webapps/
+                '''
+            }
+        }
+    }
+}

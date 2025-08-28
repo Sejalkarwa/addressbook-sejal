@@ -1,0 +1,9 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.exe
+.terraform/
+*.tfstate
+*.tfstate.*
+*.exe
