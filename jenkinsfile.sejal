@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven-3.8.8'
+    }
+
     environment {
         APP_SERVER_IP = "13.42.4.15"
     }
@@ -21,18 +25,19 @@ pipeline {
 
         stage('Install Tomcat via Ansible') {
             steps {
-                ansiblePlaybook(
-                    playbook: 'ansible/tomcat-setup.yml',
-                    inventory: 'ansible/inventory'
-                )
+                sshagent(['app-node-key']) {
+                    sh 'ansible-playbook ansible/tomcat-setup.yml -i ansible/inventory'
+                }
             }
         }
 
         stage('Deploy WAR to Tomcat') {
             steps {
-                sh '''
-                scp -i /var/lib/jenkins/Sejal_newkey.pem target/*.war ubuntu@${APP_SERVER_IP}:/opt/tomcat9/webapps/
-                '''
+                sshagent(['app-node-key']) {
+                    sh '''
+                    scp target/*.war ubuntu@${APP_SERVER_IP}:/opt/tomcat9/webapps/
+                    '''
+                }
             }
         }
     }
